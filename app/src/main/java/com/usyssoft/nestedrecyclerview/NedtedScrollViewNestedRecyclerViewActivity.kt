@@ -3,6 +3,8 @@ package com.usyssoft.nestedrecyclerview
 import android.content.Context
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.util.Log
 import android.view.ViewGroup
 import android.widget.LinearLayout
@@ -18,11 +20,11 @@ import com.usyssoft.nestedrecyclerview.model.nestedList
 import com.usyssoft.nestedrecyclerview.tools.Tools
 
 class NedtedScrollViewNestedRecyclerViewActivity : AppCompatActivity() {
-    private lateinit var b : ActivityNedtedScrollViewNestedRecyclerViewBinding
+    private lateinit var b: ActivityNedtedScrollViewNestedRecyclerViewBinding
     private lateinit var context: Context
 
-    private var list : ArrayList<firstList> = ArrayList()
-    private var listNested : ArrayList<nestedList> = ArrayList()
+    private var list: ArrayList<firstList> = ArrayList()
+    private var listNested: ArrayList<nestedList> = ArrayList()
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         b = ActivityNedtedScrollViewNestedRecyclerViewBinding.inflate(layoutInflater)
@@ -41,7 +43,7 @@ class NedtedScrollViewNestedRecyclerViewActivity : AppCompatActivity() {
 
 
 
-            getData {completed->
+            getData { completed ->
                 if (completed == 1) {
                     val linearContainer = LinearLayout(context)
                     linearContainer.layoutParams = ViewGroup.LayoutParams(
@@ -106,22 +108,25 @@ class NedtedScrollViewNestedRecyclerViewActivity : AppCompatActivity() {
     }
 
 
+    fun getData(completed: (Int) -> Unit) {
+        val handler = Handler(Looper.getMainLooper())
+        handler.postDelayed({
+            list.clear()
+            listNested.clear()
 
-    fun getData(completed : (Int) -> Unit) {
-        list.clear()
-        listNested.clear()
+            for (i in 0..200) {
+                listNested.add(nestedList(i, "Mockup $i", R.drawable.image))
+            }
 
-        for (i in 0 .. 200) {
-            listNested.add(nestedList(i,"Mockup $i", R.drawable.image))
-        }
+            for (i in 0..40) {
+                list.add(firstList("Header $i", listNested))
+            }
+            completed(1)
+        }, 1000)
 
-        for (i in 0 .. 40) {
-            list.add(firstList("Header $i",listNested))
-        }
-        completed(1)
     }
 
-    private fun createRecyclerView(listPos:Int): RecyclerView {
+    private fun createRecyclerView(listPos: Int): RecyclerView {
         val recyclerView = RecyclerView(context)
         recyclerView.layoutParams = ViewGroup.LayoutParams(
             ViewGroup.LayoutParams.MATCH_PARENT,
@@ -129,9 +134,9 @@ class NedtedScrollViewNestedRecyclerViewActivity : AppCompatActivity() {
         )
         recyclerView.tag = listPos
 
-        val layoutManager = StaggeredGridLayoutManager(3,StaggeredGridLayoutManager.VERTICAL)
+        val layoutManager = StaggeredGridLayoutManager(3, StaggeredGridLayoutManager.VERTICAL)
         recyclerView.layoutManager = layoutManager
-        val adapter = nestedScrollAdapter(context,list[listPos].nestedList)
+        val adapter = nestedScrollAdapter(context, list[listPos].nestedList)
         recyclerView.adapter = adapter
 
 
